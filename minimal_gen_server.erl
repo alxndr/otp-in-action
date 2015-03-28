@@ -1,20 +1,19 @@
 -module(minimal_gen_server).
-
 -behavior(gen_server).
 
--export(
-  [init/1,
-  handle_call/3,
-  handle_cast/2,
-  handle_info/2,
-  terminate/2,
-  code_change/3
-  ]).
+-export([
+         init/1,
+         handle_call/3,
+         handle_cast/2,
+         handle_info/2,
+         terminate/2,
+         code_change/3
+        ]).
 
 -record(state, {}).
 
 init([]) ->
-  {ok, #state{}}.
+  {ok, #state{}}. % that's a record
 
 handle_call(_Request, _From, State) ->
   Reply = ok,
