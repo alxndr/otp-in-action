@@ -1,11 +1,11 @@
-%%%-------------
 %%% @doc RPC over TPC server, from _Erlang and OTP in Action_
-%%%-------------
+%%%   n.b. designed to be a singleton (p 107)
+%%% @end
 
 -module(tr_server).
 -behavior(gen_server).
 
-% API
+% API ... so what's this specific for? start_link/1 and /0 just conventions or what
 -export([
          start_link/1,
          start_link/0,
@@ -38,6 +38,10 @@
 %% @end
 start_link(Port) ->
   gen_server:start_link({local, ?SERVER}, ?MODULE, [Port], []).
+  % 1st param is where to start the new server's process
+  % 2nd param is... how the link is established back to here?
+  % 3rd param is args passed to the gen_server's init/1
+  % 4th is extra options
 
 %% @doc Calls `start_link(Port)` using default port.
 %% @spec start_link() -> {ok, Pid}
@@ -50,7 +54,7 @@ start_link() ->
 %%   Count = integer()
 %% @end
 get_count() ->
-  gen_server:call(?SERVER, get_count).
+  gen_server:call(?SERVER, get_count). % n.b. gen_server:call/2 blocks, waiting for (default) 5 sec
 
 %% @doc Stops the server.
 %% @spec stop() -> ok
