@@ -61,3 +61,15 @@ get_count() ->
 stop() ->
   get_server:cast(?SERVER, stop).
 
+
+%%% gen_server callbacks
+
+init([Port]) -> % convention to always pass a list to init/1
+  {ok, LSock} = gen_tcp:listen(Port, [{active, true}]),
+  {ok, #state{port = Port, lsock = LSock}, 0}. % immediate timeout
+
+handle_call(get_count, _From, State) ->
+  {reply, {ok, State#state.request_count}, State}.
+
+handle_cast(stop, State) ->
+  {stop, normal, State}.
