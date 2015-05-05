@@ -66,10 +66,24 @@ stop() ->
 
 init([Port]) -> % convention to always pass a list to init/1
   {ok, LSock} = gen_tcp:listen(Port, [{active, true}]),
-  {ok, #state{port = Port, lsock = LSock}, 0}. % immediate timeout
+  {ok, #state{port = Port, lsock = LSock}, 0}. % immediate timeout returns to caller of start_link; handle_info(timeout) for any additional async processing
 
 handle_call(get_count, _From, State) ->
   {reply, {ok, State#state.request_count}, State}.
 
 handle_cast(stop, State) ->
   {stop, normal, State}.
+
+handle_info({tcp, Socket, RawData}, State) ->
+  do_rpc(Socket, RawData),
+  RequestCount = State#state.request_count,
+  {noreply, State#state{request_count = RequestCount + 1}};
+handle_info(timeout, #state{lsock = LSock} = State) ->
+  {ok, _Sock} = gen_tcp:accept(LSock), % blocks this server listening for connection on socket
+  {noreply, State}. % once a connection made, return unchanged (socket handle is still in State)
+
+terminate(_Reason, _State) ->
+  ok.
+
+code_change(_OldVsn, State, _Extra) ->
+  {ok, State}.
